@@ -7,12 +7,12 @@ Content-Type: application/json
 
 { "nome": "Ana", "email": "ana@loja.dev", "senha": "senha12345" }
 
-### Login (devolve token)
+### Login como o admin de exemplo do dev (devolve token)
 # @name login
 POST {{host}}/api/auth/login
 Content-Type: application/json
 
-{ "email": "ana@loja.dev", "senha": "senha12345" }
+{ "email": "admin@loja.dev", "senha": "admin12345" }
 
 ### Listar produtos (público, paginado)
 GET {{host}}/api/produtos?page=0&size=12&sort=preco,asc
@@ -20,7 +20,7 @@ GET {{host}}/api/produtos?page=0&size=12&sort=preco,asc
 ### Buscar por nome
 GET {{host}}/api/produtos?nome=caneca
 
-### Criar produto (precisa do token do login/registro)
+### Criar produto (precisa de token de ADMIN; o token do registro, que é USER, recebe 403)
 POST {{host}}/api/produtos
 Authorization: Bearer {{login.response.body.token}}
 Content-Type: application/json

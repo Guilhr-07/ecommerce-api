@@ -4,7 +4,7 @@
 > com **Spring Security + JWT**, **upload de imagens** e **documentação Swagger**.
 
 Projeto: **API de catálogo de e-commerce**. Qualquer um pode ver produtos; só quem está
-logado cria/edita/apaga. Marco do **Mês 4**.
+é **admin** cria/edita/apaga. Marco do **Mês 4**.
 
 ---
 
@@ -19,12 +19,12 @@ Já vem com um admin (`admin@loja.dev` / `admin12345`) e 3 produtos. Fluxo compl
 terminal:
 
 ```bash
-# 1. registrar e capturar o token
-TOKEN=$(curl -s -X POST localhost:8080/api/auth/register \
+# 1. logar como o admin de exemplo e capturar o token
+TOKEN=$(curl -s -X POST localhost:8080/api/auth/login \
   -H 'Content-Type: application/json' \
-  -d '{"nome":"Ana","email":"ana@loja.dev","senha":"senha12345"}' | jq -r .token)
+  -d '{"email":"admin@loja.dev","senha":"admin12345"}' | jq -r .token)
 
-# 2. criar produto usando o token
+# 2. criar produto usando o token (um usuário registrado, que nasce USER, recebe 403)
 curl -X POST localhost:8080/api/produtos \
   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
   -d '{"nome":"Caneca","preco":39.90,"estoque":100}'
@@ -36,7 +36,7 @@ curl -i -X POST localhost:8080/api/produtos -H 'Content-Type: application/json' 
 **Swagger (documentação navegável):** abra **http://localhost:8080/swagger-ui.html** —
 tem um botão **Authorize** para colar o token e testar as rotas protegidas pelo navegador.
 
-Testes: `./mvnw test` (10 testes).
+Testes: `./mvnw test` (15 testes).
 
 ---
 
@@ -188,15 +188,23 @@ filtra por nome (o Spring gera o `WHERE nome ILIKE %...%`).
 
 ---
 
-## 6. Papéis (Role) — o que já está pronto e como ativar
+## 6. Papéis (Role)
 
-Todo usuário tem um `Role` (USER/ADMIN), virando a autoridade `ROLE_USER`/`ROLE_ADMIN`. As
-escritas hoje exigem apenas **estar logado**. Para exigir **admin** numa rota (ex.: só
-admin apaga), adicione no `SecurityConfig`:
+Todo usuário tem um `Role` (USER/ADMIN), virando a autoridade `ROLE_USER`/`ROLE_ADMIN`. O
+registro cria sempre `USER`, mesmo que o JSON traga um papel. A regra mora só no `SecurityConfig`:
 
 ```java
-.requestMatchers(HttpMethod.DELETE, "/api/produtos/**").hasRole("ADMIN")
+.requestMatchers(HttpMethod.GET, "/api/produtos/**").permitAll()
+.requestMatchers("/api/produtos/**").hasRole("ADMIN")   // POST, PUT, PATCH, DELETE, upload
 ```
+
+O papel é lido do banco a cada requisição (`UsuarioDetailsService`), não da claim `role` do
+token: custa uma consulta, mas promover ou rebaixar alguém vale na hora. `USER` em rota de
+admin recebe 403 e anônimo recebe 401, os dois em ProblemDetail.
+
+**Primeiro admin em produção (perfil `postgres`):** registre a conta, ponha o email em
+`ADMIN_EMAIL` e reinicie. O `config/AdminBootstrap.java` promove essa conta na subida; nunca
+cria conta nem senha a partir da variável.
 
 O admin de exemplo (`admin@loja.dev`) é criado pelo `config/DataSeeder.java`, que só roda
 no dev com H2 (`@Profile("!test & !postgres")`): a senha dele está no código e não pode
@@ -222,7 +230,7 @@ existir num banco de verdade.
 |------------------------|---------|
 | Senha só como hash BCrypt | Se vazar o banco, ninguém tem as senhas |
 | Segredo do JWT por variável de ambiente | Não fica no código/GitHub |
-| Rota de escrita exige token | Estranho não altera o catálogo |
+| Rota de escrita exige papel ADMIN | Nem estranho nem cliente comum altera o catálogo |
 | Upload valida tipo + trava path traversal | Impede arquivo malicioso e fuga de pasta |
 | Erros em ProblemDetail | Não vaza stack trace para o cliente |
 
