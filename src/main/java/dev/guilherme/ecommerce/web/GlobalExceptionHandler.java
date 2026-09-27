@@ -5,6 +5,7 @@ import dev.guilherme.ecommerce.exception.RecursoNaoEncontradoException;
 import dev.guilherme.ecommerce.exception.RegraNegocioException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -35,6 +36,13 @@ public class GlobalExceptionHandler {
     public ProblemDetail tratarUploadGrande(MaxUploadSizeExceededException ex) {
         return problem(HttpStatus.PAYLOAD_TOO_LARGE, "Arquivo muito grande",
                 "A imagem excede o tamanho máximo permitido");
+    }
+
+    /** ?sort= com campo que não existe na entidade: erro do cliente, não 500. */
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ProblemDetail tratarOrdenacaoInvalida(PropertyReferenceException ex) {
+        return problem(HttpStatus.BAD_REQUEST, "Parâmetro inválido",
+                "Campo de ordenação inválido: " + ex.getPropertyName());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

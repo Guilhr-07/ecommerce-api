@@ -1,5 +1,6 @@
 package dev.guilherme.ecommerce;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -107,5 +108,31 @@ class EcommerceApiIntegrationTest {
                         .content("{\"nome\":\"Eva\",\"email\":\"eva@loja.dev\",\"senha\":\"123\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.erros.senha").exists());
+    }
+
+    @Test
+    void rejeitaSenhaAcimaDoLimiteDoBcrypt() throws Exception {
+        // BCrypt só aceita até 72 bytes; acima disso o encoder lança exceção (era 500).
+        String senhaLonga = "a".repeat(80);
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\":\"Leo\",\"email\":\"leo@loja.dev\",\"senha\":\"" + senhaLonga + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erros.senha").exists());
+    }
+
+    @Test
+    void ordenacaoPorCampoInexistenteRetorna400() throws Exception {
+        mockMvc.perform(get("/api/produtos").param("sort", "naoExiste"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Parâmetro inválido")));
+    }
+
+    @Test
+    void rotaDeErroEhPublica() throws Exception {
+        // Erro em rota pública é encaminhado para /error; se /error exigir token,
+        // qualquer 500 chega ao cliente como 401 e esconde o problema real.
+        mockMvc.perform(get("/error"))
+                .andExpect(result -> assertThat(result.getResponse().getStatus()).isNotEqualTo(401));
     }
 }
