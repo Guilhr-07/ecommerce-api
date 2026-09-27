@@ -34,3 +34,8 @@ build/
 
 # Imagens enviadas em runtime
 uploads/
+
+### Segredos locais ###
+.env
+.env.*
+!.env.example
