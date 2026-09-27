@@ -228,6 +228,26 @@ class EcommerceApiIntegrationTest {
     }
 
     @Test
+    void rejeitaSenhaComAcentoAcimaDe72Bytes() throws Exception {
+        // 40 caracteres passam no limite de caracteres, mas "ã" ocupa 2 bytes em UTF-8: 80 bytes (era 500)
+        String senhaAcentuada = "ã".repeat(40);
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\":\"Íris\",\"email\":\"iris@loja.dev\",\"senha\":\"" + senhaAcentuada + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erros.senha").exists());
+    }
+
+    @Test
+    void loginComSenhaAcimaDe72BytesNaoDa500() throws Exception {
+        registrar("Joana", "joana@loja.dev", "senha12345");
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"joana@loja.dev\",\"senha\":\"" + "ã".repeat(40) + "\"}"))
+                .andExpect(result -> assertThat(result.getResponse().getStatus()).isLessThan(500));
+    }
+
+    @Test
     void ordenacaoPorCampoInexistenteRetorna400() throws Exception {
         mockMvc.perform(get("/api/produtos").param("sort", "naoExiste"))
                 .andExpect(status().isBadRequest())

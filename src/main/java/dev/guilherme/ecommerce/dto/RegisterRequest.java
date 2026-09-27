@@ -14,8 +14,9 @@ public record RegisterRequest(
         String email,
 
         @NotBlank(message = "senha é obrigatória")
-        // BCrypt aceita até 72 bytes. O limite aqui é em caracteres: senha longa com acento ainda pode passar disso.
-        @Size(min = 8, max = 72, message = "senha deve ter entre 8 e 72 caracteres")
+        @Size(min = 8, message = "senha deve ter no mínimo 8 caracteres")
+        // BCrypt aceita até 72 bytes; o limite é em bytes porque letra acentuada ocupa 2
+        @MaxBytesUtf8(value = 72, message = "senha deve ter no máximo 72 bytes (letra acentuada conta 2)")
         String senha
 ) {
 }
