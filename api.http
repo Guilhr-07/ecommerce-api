@@ -1,0 +1,49 @@
+@host = http://localhost:8080
+
+### Registrar (devolve token)
+# @name registro
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{ "nome": "Ana", "email": "ana@loja.dev", "senha": "senha12345" }
+
+### Login (devolve token)
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "ana@loja.dev", "senha": "senha12345" }
+
+### Listar produtos (público, paginado)
+GET {{host}}/api/produtos?page=0&size=12&sort=preco,asc
+
+### Buscar por nome
+GET {{host}}/api/produtos?nome=caneca
+
+### Criar produto (precisa do token do login/registro)
+POST {{host}}/api/produtos
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "nome": "Caneca dev", "descricao": "Cerâmica 300ml", "preco": 39.90, "estoque": 100 }
+
+### Upload de imagem (multipart)
+POST {{host}}/api/produtos/1/imagem
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: multipart/form-data; boundary=----boundary
+
+------boundary
+Content-Disposition: form-data; name="arquivo"; filename="foto.png"
+Content-Type: image/png
+
+< ./foto.png
+------boundary--
+
+### Tentar criar sem token -> 401
+POST {{host}}/api/produtos
+Content-Type: application/json
+
+{ "nome": "X", "preco": 10.00, "estoque": 1 }
+
+### Swagger UI
+GET {{host}}/swagger-ui.html
