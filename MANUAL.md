@@ -1,7 +1,6 @@
 # Manual completo — API de E-commerce (com JWT)
 
-> Antes: **[Fundamentos](../MANUAIS/01-FUNDAMENTOS-SPRING-BOOT.md)** (seção 7 é sobre JWT)
-> e os manuais dos projetos 1 e 2. Aqui foco no que é **novo e mais avançado**: segurança
+> Terceiro projeto da trilha, depois do Gestor de Tarefas e do Controle Financeiro. Aqui foco no que é **novo e mais avançado**: segurança
 > com **Spring Security + JWT**, **upload de imagens** e **documentação Swagger**.
 
 Projeto: **API de catálogo de e-commerce**. Qualquer um pode ver produtos; só quem está
@@ -37,7 +36,7 @@ curl -i -X POST localhost:8080/api/produtos -H 'Content-Type: application/json' 
 **Swagger (documentação navegável):** abra **http://localhost:8080/swagger-ui.html** —
 tem um botão **Authorize** para colar o token e testar as rotas protegidas pelo navegador.
 
-Testes: `./mvnw test` (6 testes).
+Testes: `./mvnw test` (10 testes).
 
 ---
 
@@ -200,7 +199,8 @@ admin apaga), adicione no `SecurityConfig`:
 ```
 
 O admin de exemplo (`admin@loja.dev`) é criado pelo `config/DataSeeder.java`, que só roda
-fora dos testes (`@Profile("!test")`).
+no dev com H2 (`@Profile("!test & !postgres")`): a senha dele está no código e não pode
+existir num banco de verdade.
 
 ---
 
