@@ -32,7 +32,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/produtos")
-@Tag(name = "Produtos", description = "Catálogo — leitura pública, escrita autenticada (JWT)")
+@Tag(name = "Produtos", description = "Catálogo — leitura pública, escrita só para ADMIN (JWT)")
 public class ProdutoController {
 
     private final ProdutoService service;
@@ -58,7 +58,7 @@ public class ProdutoController {
 
     @PostMapping
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Cria um produto (requer JWT)")
+    @Operation(summary = "Cria um produto (requer papel ADMIN)")
     public ResponseEntity<ProdutoResponse> criar(@Valid @RequestBody ProdutoRequest request,
                                                  UriComponentsBuilder uriBuilder) {
         ProdutoResponse criado = service.criar(request);
@@ -68,14 +68,14 @@ public class ProdutoController {
 
     @PutMapping("/{id}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Atualiza um produto (requer JWT)")
+    @Operation(summary = "Atualiza um produto (requer papel ADMIN)")
     public ProdutoResponse atualizar(@PathVariable Long id, @Valid @RequestBody ProdutoRequest request) {
         return service.atualizar(id, request);
     }
 
     @PostMapping(path = "/{id}/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Faz upload da imagem do produto (requer JWT)")
+    @Operation(summary = "Faz upload da imagem do produto (requer papel ADMIN)")
     public ProdutoResponse enviarImagem(@PathVariable Long id,
                                         @RequestParam("arquivo") MultipartFile arquivo) {
         return service.enviarImagem(id, arquivo);
@@ -94,7 +94,7 @@ public class ProdutoController {
     @DeleteMapping("/{id}")
     @SecurityRequirement(name = "bearerAuth")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Remove um produto (requer JWT)")
+    @Operation(summary = "Remove um produto (requer papel ADMIN)")
     public void remover(@PathVariable Long id) {
         service.remover(id);
     }

@@ -8,6 +8,8 @@ import java.util.Map;
 import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -30,6 +32,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CredenciaisInvalidasException.class)
     public ProblemDetail tratarCredenciais(CredenciaisInvalidasException ex) {
         return problem(HttpStatus.UNAUTHORIZED, "Não autenticado", ex.getMessage());
+    }
+
+    /** Chega aqui pelo entry point do SecurityConfig: rota protegida sem token válido. */
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail tratarNaoAutenticado(AuthenticationException ex) {
+        return problem(HttpStatus.UNAUTHORIZED, "Não autenticado", "Token ausente, inválido ou expirado");
+    }
+
+    /** Autenticado, mas sem o papel exigido pela rota (ex.: USER tentando escrever em produtos). */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail tratarAcessoNegado(AccessDeniedException ex) {
+        return problem(HttpStatus.FORBIDDEN, "Acesso negado", "Seu usuário não tem permissão para esta operação");
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
