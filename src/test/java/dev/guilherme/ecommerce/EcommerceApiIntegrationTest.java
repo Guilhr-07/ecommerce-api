@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
+import dev.guilherme.ecommerce.config.AdminBootstrap;
 import dev.guilherme.ecommerce.domain.Role;
 import dev.guilherme.ecommerce.domain.Usuario;
 import dev.guilherme.ecommerce.repository.UsuarioRepository;
@@ -151,6 +152,28 @@ class EcommerceApiIntegrationTest {
 
         // leitura continua pública e o produto não foi apagado
         mockMvc.perform(get("/api/produtos/" + id)).andExpect(status().isOk());
+    }
+
+    @Test
+    void adminBootstrapPromoveUsuarioExistenteSemCriarConta() throws Exception {
+        String tokenAntigo = registrar("Hugo", "hugo@loja.dev", "senha12345");
+        long antes = usuarios.count();
+
+        // o AdminBootstrap só vira bean no perfil postgres; aqui é chamado direto
+        new AdminBootstrap(usuarios, " HUGO@loja.dev ").run();
+        new AdminBootstrap(usuarios, "ninguem@loja.dev").run();
+        new AdminBootstrap(usuarios, "").run();
+
+        assertThat(usuarios.findByEmailIgnoreCase("hugo@loja.dev").orElseThrow().getRole())
+                .isEqualTo(Role.ADMIN);
+        assertThat(usuarios.count()).isEqualTo(antes);
+
+        // o papel é lido do banco a cada requisição: o token emitido quando era USER já vale como ADMIN
+        mockMvc.perform(post("/api/produtos")
+                        .header("Authorization", "Bearer " + tokenAntigo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(produtoJson()))
+                .andExpect(status().isCreated());
     }
 
     @Test

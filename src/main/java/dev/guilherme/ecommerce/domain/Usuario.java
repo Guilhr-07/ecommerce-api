@@ -63,4 +63,9 @@ public class Usuario {
     public Role getRole() {
         return role;
     }
+
+    /** Único caminho para virar ADMIN fora do seeder de dev: o AdminBootstrap na subida. */
+    public void promoverAAdmin() {
+        this.role = Role.ADMIN;
+    }
 }

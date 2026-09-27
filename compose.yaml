@@ -25,6 +25,7 @@ services:
       DB_PASSWORD: ecommerce
       JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no arquivo .env (veja .env.example)}
       UPLOAD_DIR: /data/uploads
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
     volumes:
       - uploads:/data/uploads
     ports:
