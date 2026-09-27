@@ -11,9 +11,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-/** Semeia um admin e produtos de exemplo no ambiente de desenvolvimento (não em testes). */
+/**
+ * Semeia um admin e produtos de exemplo só no dev com H2. Fora de testes e do perfil postgres,
+ * porque a senha do admin está no código e não pode existir num banco de verdade.
+ */
 @Component
-@Profile("!test")
+@Profile("!test & !postgres")
 public class DataSeeder implements CommandLineRunner {
 
     private final UsuarioRepository usuarios;

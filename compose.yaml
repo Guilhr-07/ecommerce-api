@@ -23,7 +23,7 @@ services:
       DB_URL: jdbc:postgresql://db:5432/ecommerce
       DB_USER: ecommerce
       DB_PASSWORD: ecommerce
-      JWT_SECRET: troque-esta-chave-em-producao-com-no-minimo-32-caracteres
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no arquivo .env (veja .env.example)}
       UPLOAD_DIR: /data/uploads
     volumes:
       - uploads:/data/uploads
