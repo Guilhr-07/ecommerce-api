@@ -1,10 +1,12 @@
 # E-commerce API
 
+[![CI](https://github.com/Guilhr-07/ecommerce-api/actions/workflows/ci.yml/badge.svg)](https://github.com/Guilhr-07/ecommerce-api/actions/workflows/ci.yml) | Case completo, com as decisões e o que ficou de fora: [guilherme-portfolio.dev/projetos/ecommerce-api](https://guilherme-portfolio.dev/projetos/ecommerce-api)
+
 API REST de catálogo de loja: cadastro e login com JWT, produtos com busca por nome e paginação, upload de imagem do produto e documentação Swagger. Java 21, Spring Boot 4.1, Spring Security.
 
 ## Por que existe
 
-Terceiro projeto da minha trilha de backend (Mês 4), depois do Gestor de Tarefas e do Controle Financeiro. Aqui o assunto é a borda da API: quem pode escrever, como o token é emitido e conferido, o que acontece com o arquivo que o usuário manda, e o que a API responde quando algo dá errado.
+Terceiro projeto da minha trilha de backend, depois do Gestor de Tarefas e do Controle Financeiro. Aqui o assunto é a borda da API: quem pode escrever, como o token é emitido e conferido, o que acontece com o arquivo que o usuário manda, e o que a API responde quando algo dá errado.
 
 ## Como funciona
 
