@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.1.0</version>
+		<version>4.1.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dev.guilherme</groupId>
@@ -29,6 +29,22 @@
 	<properties>
 		<java.version>21</java.version>
 	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<!-- O Spring Boot 4.x gerencia a linha Jackson 3 (tools.jackson), nao a 2.x.
+			     O springdoc traz com.fasterxml.jackson 2.x por transitividade, e sem um BOM
+			     essa linha fica na versao que o swagger-core pedir. Importar o BOM mantem os
+			     artefatos 2.x coerentes entre si e numa versao sem aviso aberto. -->
+			<dependency>
+				<groupId>com.fasterxml.jackson</groupId>
+				<artifactId>jackson-bom</artifactId>
+				<version>2.21.8</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
