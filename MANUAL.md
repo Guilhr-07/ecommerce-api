@@ -1,4 +1,4 @@
-# Manual completo — API de E-commerce (com JWT)
+# Manual completo: API de E-commerce (com JWT)
 
 > Terceiro projeto da trilha, depois do Gestor de Tarefas e do Controle Financeiro. Aqui foco no que é **novo e mais avançado**: segurança
 > com **Spring Security + JWT**, **upload de imagens** e **documentação Swagger**.
@@ -33,18 +33,18 @@ curl -X POST localhost:8080/api/produtos \
 curl -i -X POST localhost:8080/api/produtos -H 'Content-Type: application/json' -d '{}'
 ```
 
-**Swagger (documentação navegável):** abra **http://localhost:8080/swagger-ui.html** —
-tem um botão **Authorize** para colar o token e testar as rotas protegidas pelo navegador.
+**Swagger (documentação navegável):** abra **http://localhost:8080/swagger-ui.html**.
+Lá tem um botão **Authorize** para colar o token e testar as rotas protegidas pelo navegador.
 
 Testes: `./mvnw test` (15 testes).
 
 ---
 
-## 2. Autenticação com JWT — o passo a passo no código
+## 2. Autenticação com JWT: o passo a passo no código
 
 Releia a seção 7 dos Fundamentos para a ideia geral. Aqui, as 4 peças da pasta `security/`:
 
-### 2.1. `JwtService.java` — emite e valida o token
+### 2.1. `JwtService.java`: emite e valida o token
 
 ```java
 public String gerarToken(Usuario usuario) {
@@ -74,14 +74,14 @@ public String extrairEmailValido(String token) {
 
 > **Detalhe técnico (Boot 4):** usei a variante **`jjwt-gson`** de propósito. O Spring
 > Boot 4 usa Jackson 3 (`tools.jackson`), e a variante `jjwt-jackson` traria Jackson 2
-> junto — conflito. Com gson isso não acontece. *(Está no Jarbas, `ERR-JAVA-007`.)*
+> junto, e as duas conflitam. Com gson isso não acontece.
 
-### 2.2. `UsuarioDetailsService.java` — como o Spring carrega o usuário
+### 2.2. `UsuarioDetailsService.java`: como o Spring carrega o usuário
 
 Implementa a interface que o Spring Security espera. Busca por email e devolve um objeto
 com email, hash da senha e a autoridade `ROLE_USER`/`ROLE_ADMIN`.
 
-### 2.3. `JwtAuthenticationFilter.java` — o porteiro de cada requisição
+### 2.3. `JwtAuthenticationFilter.java`: o porteiro de cada requisição
 
 ```java
 protected void doFilterInternal(HttpServletRequest req, ... ) {
@@ -100,10 +100,10 @@ protected void doFilterInternal(HttpServletRequest req, ... ) {
 ```
 
 É um `OncePerRequestFilter` (roda uma vez por requisição). Se o token é válido, ele marca
-a requisição como autenticada; se não, deixa passar sem autenticação — e aí o Security
+a requisição como autenticada; se não, deixa passar sem autenticação, e aí o Security
 barra nas rotas protegidas.
 
-### 2.4. `SecurityConfig.java` — as regras de quem entra onde
+### 2.4. `SecurityConfig.java`: as regras de quem entra onde
 
 ```java
 http.csrf(csrf -> csrf.disable())                                     // API stateless não usa CSRF
@@ -129,7 +129,7 @@ No `AuthService`: registrar faz `encoder.encode(senha)` (gera o hash); logar faz
 
 ---
 
-## 3. Upload de imagens — `service/ArmazenamentoService.java`
+## 3. Upload de imagens: `service/ArmazenamentoService.java`
 
 Salva o arquivo no disco e devolve a URL para servi-lo. Dois cuidados de segurança:
 
@@ -158,7 +158,7 @@ imagem é servida por `GET /api/produtos/imagens/{arquivo}` (rota pública).
 
 ---
 
-## 4. Documentação Swagger — `config/OpenApiConfig.java`
+## 4. Documentação Swagger: `config/OpenApiConfig.java`
 
 A biblioteca **springdoc** lê as anotações e gera a página do Swagger sozinha. O único
 código é registrar o "esquema de segurança" para aparecer o botão **Authorize**:
@@ -170,8 +170,8 @@ código é registrar o "esquema de segurança" para aparecer o botão **Authoriz
 
 Nos controllers, `@Operation(summary = "...")` e `@Tag(...)` viram a descrição na tela.
 
-> **Detalhe (Boot 4):** springdoc **3.0.3** — a linha 3.x é a compatível com Spring Boot
-> 4. A 2.8.x é para Boot 3. *(Jarbas, `ERR-JAVA-008`.)*
+> **Detalhe (Boot 4):** springdoc **3.0.3**: a linha 3.x é a compatível com Spring Boot
+> 4. A 2.8.x é para Boot 3.
 
 ---
 
@@ -217,14 +217,14 @@ existir num banco de verdade.
 - **Adicionar categoria de produto?** Crie uma entidade `Categoria` e um `@ManyToOne` em
   `Produto` (igual ao projeto Financeiro).
 - **Trocar armazenamento de imagem para nuvem (S3)?** Troque só o `ArmazenamentoService`
-  — o resto do código não muda (por isso ele é uma classe isolada).
+  e o resto do código não muda (por isso ele é uma classe isolada).
 - **Aumentar o limite de upload?** `spring.servlet.multipart.max-file-size` no
   `application.properties`.
 - **Token durar mais?** `app.jwt.expiration-seconds` (padrão 3600 = 1h).
 
 ---
 
-## 8. Segurança — o que lembrar
+## 8. Segurança: o que lembrar
 
 | Boa prática no projeto | Por quê |
 |------------------------|---------|
@@ -234,7 +234,7 @@ existir num banco de verdade.
 | Upload valida tipo + trava path traversal | Impede arquivo malicioso e fuga de pasta |
 | Erros em ProblemDetail | Não vaza stack trace para o cliente |
 
-Este é o projeto mais completo dos três — junta tudo dos anteriores + segurança.
+Este é o projeto mais completo dos três: junta tudo dos anteriores + segurança.
 
 ---
 
